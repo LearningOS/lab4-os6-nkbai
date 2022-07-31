@@ -1,20 +1,22 @@
+use alloc::vec::Vec;
 
+use lazy_static::*;
 use virtio_drivers::{VirtIOBlk, VirtIOHeader};
+
 use crate::mm::{
-    PhysAddr,
-    VirtAddr,
     frame_alloc,
     frame_dealloc,
-    PhysPageNum,
     FrameTracker,
-    PageTable,
-    StepByOne,
     kernel_token,
+    PageTable,
+    PhysAddr,
+    PhysPageNum,
+    StepByOne,
+    VirtAddr,
 };
-use super::BlockDevice;
 use crate::sync::UPSafeCell;
-use alloc::vec::Vec;
-use lazy_static::*;
+
+use super::BlockDevice;
 
 #[allow(unused)]
 const VIRTIO0: usize = 0x10001000;
@@ -30,24 +32,25 @@ lazy_static! {
 impl BlockDevice for VirtIOBlock {
     fn read_block(&self, block_id: usize, buf: &mut [u8]) {
         self.0.exclusive_access()
-        .read_block(block_id, buf)
-        .expect("Error when reading VirtIOBlk");
+            .read_block(block_id, buf)
+            .expect("Error when reading VirtIOBlk");
     }
     fn write_block(&self, block_id: usize, buf: &[u8]) {
         self.0.exclusive_access()
-        .write_block(block_id, buf)
-        .expect("Error when writing VirtIOBlk");
+            .write_block(block_id, buf)
+            .expect("Error when writing VirtIOBlk");
     }
 }
 
 impl VirtIOBlock {
     #[allow(unused)]
     pub fn new() -> Self {
-        unsafe {
+        let s = unsafe {
             Self(UPSafeCell::new(VirtIOBlk::new(
                 &mut *(VIRTIO0 as *mut VirtIOHeader)
             ).unwrap()))
-        }
+        };
+        s
     }
 }
 

@@ -20,12 +20,15 @@
 #![feature(panic_info_message)]
 #![feature(alloc_error_handler)]
 
+extern crate alloc;
 #[macro_use]
 extern crate bitflags;
 #[macro_use]
 extern crate log;
 
-extern crate alloc;
+use easy_fs::{hello_world_in_easy_fs, set_console_putchar};
+
+use crate::sbi::console_putchar;
 
 #[macro_use]
 mod console;
@@ -62,6 +65,8 @@ pub fn rust_main() -> ! {
     clear_bss();
     logging::init();
     println!("[kernel] Hello, world!");
+    set_console_putchar(console_putchar as *const ());
+    hello_world_in_easy_fs();
     mm::init();
     mm::remap_test();
     trap::init();
