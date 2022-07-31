@@ -10,7 +10,9 @@ use super::{
     get_block_cache,
     block_cache_sync_all,
 };
-use crate::BLOCK_SZ;
+use crate::{BLOCK_SZ, hello_world_in_easy_fs, println};
+#[must_use]
+use crate::console;
 
 /// An easy fs over a block device
 pub struct EasyFileSystem {
@@ -91,6 +93,7 @@ impl EasyFileSystem {
     }
     /// Open a block device as a filesystem
     pub fn open(block_device: Arc<dyn BlockDevice>) -> Arc<Mutex<Self>> {
+        println!("Opening filesystem...");
         // read SuperBlock
         get_block_cache(0, Arc::clone(&block_device))
             .lock()
@@ -125,6 +128,7 @@ impl EasyFileSystem {
             block_offset,
             Arc::clone(efs),
             block_device,
+            0,
         )
     }
     /// Get inode by id
